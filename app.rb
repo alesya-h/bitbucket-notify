@@ -19,7 +19,7 @@ def files_string(files)
 end
 
 def commit_string(c)
-  "#{c['author']}@#{c['branch']}(#{c['node']}) #{c['timestamp']}\n#{c['message']}\n" + files_string(c['files'])
+  "#{c['author']}@#{c['branch']}(#{c['raw_node'][0,7]}) #{c['timestamp']}\n#{c['message']}\n" + files_string(c['files'])
 end
 
 get '/' do
