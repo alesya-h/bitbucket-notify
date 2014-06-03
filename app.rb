@@ -14,6 +14,14 @@ def pushover(message, **args)
   Net::HTTP.post_form(uri, push_params)
 end
 
+def files_string(files)
+  files.map{|f| "    #{f['file']} (#{f['type']})"}.join("\n")
+end
+
+def commit_string(c)
+  "#{c['author']}@#{c['branch']}(#{c['node']}) #{c['timestamp']}\n#{c['message']}\n" + files_string(c['files'])
+end
+
 get '/' do
   params.inspect.tap {|x| pushover(x) }
 end
@@ -28,9 +36,7 @@ post '/bitbucket' do
   if (commits = data["commits"]).empty?
     message = data.to_s
   else
-    message = commits.map do |c|
-      "#{c['author']}:#{c['branch']}:#{c['node']}\n#{c['message']}\n"
-    end.join("\n")
+    message = commits.map{|c| commit_string c }.join("\n")
   end
   message.tap {|x| p pushover(x, title: title) }
 end
