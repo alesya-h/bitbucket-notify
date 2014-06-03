@@ -7,11 +7,6 @@ def pushover_settings
     token:   'aFRF8JJgnB5xmdaK37KLh1VkMMFgW6' }
 end
 
-before do
- request.body.rewind
- @request_payload = request.body.read
-end
-
 def pushover(message, **args)
   push_params = pushover_settings.merge(args).merge(message: message)
   uri = URI.parse('https://api.pushover.net/1/messages.json')
@@ -27,5 +22,5 @@ post '/' do
 end
 
 post '/bitbucket' do
-  @request_payload.tap {|x| p pushover(x) }
+  params['payload'].tap {|x| p pushover(x) }
 end
