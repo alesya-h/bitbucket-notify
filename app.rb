@@ -1,6 +1,7 @@
 require 'sinatra'
-require "uri"
-require "net/http"
+require 'uri'
+require 'net/http'
+require 'json'
 
 def pushover_settings
   { user:    'ykvA53kfTZmElFLxnfe69HMyGNK61r',
@@ -22,5 +23,14 @@ post '/' do
 end
 
 post '/bitbucket' do
-  params['payload'].tap {|x| p pushover(x) }
+  data = JSON.parse params['payload']
+  title = data["repository"]["name"]
+  if (commits = data["commits"]).empty?
+    message = data.to_s
+  else
+    message = commits.map do |c|
+      "#{c['author']}:#{c['branch']}:#{c['node']}\n#{c['message']}\n"
+    end.join("\n")
+  end
+  message.tap {|x| p pushover(x, title: title) }
 end
