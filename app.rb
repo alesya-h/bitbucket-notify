@@ -19,7 +19,7 @@ def files_string(files)
 end
 
 def commit_string(c)
-  "#{c['author']}@#{c['branch']}(#{c['raw_node'][0,7]}) #{c['timestamp']}\n#{c['message']}\n" + files_string(c['files'])
+  "#{c['timestamp']}\n#{c['author']}@#{c['branch']}(#{c['raw_node'][0,7]})\n#{c['message']}\n" + files_string(c['files'])
 end
 
 get '/' do
@@ -34,9 +34,9 @@ post '/bitbucket' do
   data = JSON.parse params['payload']
   title = data["repository"]["name"]
   if (commits = data["commits"]).empty?
-    message = data.to_s
+    pushover(data.to_s, title: title)
   else
-    message = commits.map{|c| commit_string c }.join("\n")
+    commits.each{|c| pushover(commit_string(c), title: title) }
   end
-  message.tap {|x| p pushover(x, title: title) }
+  ''
 end
